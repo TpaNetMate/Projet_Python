@@ -8,6 +8,7 @@ import datetime
 
 #Importation des classes
 from Document import Document
+from Author import Author
 
 #####
 # Td3

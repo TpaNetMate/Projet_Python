@@ -5,7 +5,10 @@ import urllib.request
 import xmltodict
 import pickle
 import datetime
-
+from Document import Document
+from Document import RedditDocument
+from Document import ArxivDocument
+import Author
 #Importation des classes
 from Document import Document
 from Author import Author
@@ -17,7 +20,7 @@ from Author import Author
 ############################ Partie 1 #############################
 
 #Connexion au reddit
-reddit = praw.Reddit(client_id='KYd1KpbtKE0641XSBs8JZw', client_secret='3ZiJlII7ACTQur4rt5oU4CBjdveqCA', user_agent='mateo')
+reddit = praw.Reddit(client_id='--T4GQlNeGiymsugkIuEUQ', client_secret='KKnRvqABUY89YtWbILtA5_v0tv341w', user_agent='td3')
 
 
 ## Question 1.1 :
@@ -30,13 +33,25 @@ subreddit = reddit.subreddit('Coronavirus')
 
 # Alimentez la liste docs
 docs_reddit = []
-
+collection=[]
 # Récupérer le contenu textuel et l'ajouter à la liste 'docs'
 for post in subreddit.hot(limit=100):
     text = post.title
     #text = post.selftext
     #text = text.replace("\n", " ")
     docs_reddit.append(text)
+    titre = post.title
+    classAuteurTest=Author(str(post.author))
+    date = datetime.datetime.fromtimestamp(post.created).strftime("%Y/%m/%d")
+    url = "https://www.reddit.com/"+post.permalink
+    texte = post.selftext.replace("\n", "")
+
+    doc_classe = Document(titre, classAuteurTest, date, url, texte)
+
+    collection.append(doc_classe)
+
+# print(collection)
+
 
 #print(docs_reddit)
 
@@ -66,8 +81,49 @@ for d in docs:
     text = d['title']+ ". " + d['summary']
     text = text.replace("\n", " ")
     docs_arxiv.append(text)
+    titre = d["title"].replace('\n', '')  # On enlève les retours à la ligne
+    try:
+        authors = ", ".join([a["name"] for a in d["author"]])  # On fait une liste d'auteurs, séparés par une virgule
+    except:
+        authors = d["author"]["name"]  # Si l'auteur est seul, pas besoin de liste
+        classAuteurTest=Author(authors)
+    summary = d["summary"].replace("\n", "")  # On enlève les retours à la ligne
+    date = datetime.datetime.strptime(d["published"], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y/%m/%d")  # Formatage de la date en année/mois/jour avec librairie datetime
+
+    coauteurs=len(authors)
+    doc_classe = Document(titre, classAuteurTest, date, d["id"], summary)  # Création du Document
+    collection.append(doc_classe)  # Ajout du Document à la liste.
 
 #print(docs_arxiv)
+    # =============== 2.6 : DICT AUTEURS ===============
+
+authors = {}
+aut2id = {}
+num_auteurs_vus = 0
+
+# Création de la liste+index des Auteurs
+id2doc = {}
+for i, doc in enumerate(collection):
+    id2doc[i] = doc
+    if doc.auteur not in aut2id:
+        num_auteurs_vus += 1
+        authors[num_auteurs_vus] = Author(doc.auteur)
+        aut2id[doc.auteur] = num_auteurs_vus
+
+    authors[aut2id[doc.auteur]].add(doc.texte)
+print(id2doc)
+
+
+
+
+# =============== 2.6 : DICT AUTEURS ===============
+import Author
+authors = {}
+aut2id = {}
+num_auteurs_vus = 0
+
+# Création de la liste+index des Auteurs
+
 
 
 ############################ Partie 2 #############################
@@ -75,9 +131,18 @@ for d in docs:
 ## Question 2.1 :
 
 # Concaténation et création des colonnes
-corpus = docs_reddit + docs_arxiv
+# corpus = docs_reddit + docs_arxiv
+
+from Corpus import Corpus
+nomCorpus='mon corpus'
+corpus = Corpus(nomCorpus)
+
+# Construction du corpus à partir des documents
+for doc in collection:
+    corpus.add(doc)
+
 source = ['Reddit'] * len(docs_reddit) + ['Arxiv'] * len(docs_arxiv)
-num_id = list(range(1, len(corpus) + 1))
+num_id = list(range(1, corpus.ndoc + 1))
 
 # Création du DataFrame
 data = {'ID': num_id,
@@ -90,48 +155,48 @@ df = pd.DataFrame(data)
 
 # Une facon de faire les question 2.1 et 2.2 avec pickle :
 ## Question 2.2 :   
-#df.to_csv('fichier.csv', sep='\t', index=False)
+df.to_csv('fichier.csv', sep='\t', index=False)
 ## Question 2.3 :
-#df = pd.read_csv('fichier.csv', sep='\t')
-#print(df)
+df = pd.read_csv('fichier.csv',on_bad_lines='skip')
+print(df)
 
 
 ############################ Partie 3 #############################
 
 ## Question 3.1 :
-taill_corp = len(corpus)
+# taill_corp = len(corpus)
 #print("Le nombre de documents du corpus est de " + str(taill_corp) + ".")
 
 ## Question 3.2 :
-Affichage1 = True # Mettre True pour afficher le resultat de la fonction
-if Affichage1:
-    for i, doc in enumerate(corpus, start=1) :
-        print("Document n°" + str(i))
-        print("Nombre de mots :" + str(len(doc.split(" ")))) #Nombre de mots en comptant à chaque espace
-        print("Nombre de phrases :" + str(len(doc.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
+# Affichage1 = True # Mettre True pour afficher le resultat de la fonction
+# if Affichage1:
+#     for i, doc in enumerate(corpus, start=1) :
+#         print("Document n°" + str(i))
+#         print("Nombre de mots :" + str(len(doc.split(" ")))) #Nombre de mots en comptant à chaque espace
+#         print("Nombre de phrases :" + str(len(doc.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
     
-## Question 3.3 :
-corp_filtre = [doc for doc in corpus if len(doc) >= 100]
+# ## Question 3.3 :
+# corp_filtre = [doc for doc in corpus if len(doc) >= 100]
 
-Affichage2 = True # Mettre True pour afficher le resultat de la fonction
-if Affichage2:
-    for i, doc in enumerate(corp_filtre, start=1) :
-        print("Document n°" + str(i))
-        print("Nombre de mots :" + str(len(doc.split(" ")))) #Nombre de mots en comptant à chaque espace
-        print("Nombre de phrases :" + str(len(doc.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
+# Affichage2 = True # Mettre True pour afficher le resultat de la fonction
+# if Affichage2:
+#     for i, doc in enumerate(corp_filtre, start=1) :
+#         print("Document n°" + str(i))
+#         print("Nombre de mots :" + str(len(doc.split(" ")))) #Nombre de mots en comptant à chaque espace
+#         print("Nombre de phrases :" + str(len(doc.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
 
 ## Question 3.4 :
 #Création d'une unique chaine de caractere contenant tous les docs
-chaine_unique = " ".join(corp_filtre)
+# chaine_unique = " ".join(corp_filtre)
 
 #Autre facon de faire les question 2.1 et 2.2 avec pickle :
 ## Question 2.2
-with open("out.pkl", "wb") as f:
-    pickle.dump(corp_filtre, f)
+# with open("out.pkl", "wb") as f:
+#     pickle.dump(corp_filtre, f)
 
-## Question 2.3  
-with open("out.pkl", "rb") as f:
-    corp_filtre = pickle.load(f)
+# ## Question 2.3  
+# with open("out.pkl", "rb") as f:
+#     corp_filtre = pickle.load(f)
 
 # Mettre une date et une heure au moment de l'execution du code
 aujourdhui = datetime.datetime.now()
@@ -143,7 +208,8 @@ aujourdhui = datetime.datetime.now()
 #####
 
 
-collection = []
+# collection = []
+# print(df.head)
 
 # Reddit
 

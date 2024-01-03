@@ -13,3 +13,23 @@ class Document:
 
     def __str__(self):
         return f"Titre : {self.titre}"
+
+class RedditDocument(Document):
+    def __init__(self, titre="", auteur="", date="", url="", texte="",commentaire=""):
+        super().__init__(titre="", auteur="", date="", url="", texte="")
+        self.commentaire=commentaire
+    def __str__(self):
+        parent=super().__str__()
+        return f"{parent},{self.commentaire}"
+    def getType(self):
+        return "Docuemnt Reddit"
+    
+class ArxivDocument(Document):
+    def __init__(self, titre="", auteur="", date="", url="", texte="",coauteurs=""):
+        super().__init__(titre="", auteur="", date="", url="", texte="")
+        self.coauteurs=coauteurs
+    def __str__(self):
+        parent=super().__str__()
+        return f"{parent},{self.coauteurs}"
+    def getType(self):
+        return "Docuemnt Arxiv"

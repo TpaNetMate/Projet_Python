@@ -155,9 +155,9 @@ df = pd.DataFrame(data)
 
 # Une facon de faire les question 2.1 et 2.2 avec pickle :
 ## Question 2.2 :   
-df.to_csv('fichier.csv', sep='\t', index=False)
+df.to_csv('corpus.csv', sep='\t', index=False)
 ## Question 2.3 :
-df = pd.read_csv('fichier.csv',on_bad_lines='skip')
+df = pd.read_csv('corpus.csv',on_bad_lines='skip')
 print(df)
 
 

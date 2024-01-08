@@ -201,16 +201,3 @@ print(df)
 # Mettre une date et une heure au moment de l'execution du code
 aujourdhui = datetime.datetime.now()
 #print(aujourdhui)
-
-
-#####
-# Td4
-#####
-
-
-# collection = []
-# print(df.head)
-
-# Reddit
-
-# Arxiv

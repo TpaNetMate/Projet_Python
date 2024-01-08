@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 from Author import Author
 # =============== 2.7 : CLASSE CORPUS ===============
 
@@ -44,3 +45,5 @@ class Corpus:
         for r in res:
             (i,j)=r.span()
             print("trouvé en position {a}:{b}".format(a=i, b=self[i:j]))
+    
+    

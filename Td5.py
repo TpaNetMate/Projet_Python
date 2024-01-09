@@ -118,17 +118,6 @@ import re
 
 
 
-
-# =============== 2.6 : DICT AUTEURS ===============
-import Author
-authors = {}
-aut2id = {}
-num_auteurs_vus = 0
-
-# Création de la liste+index des Auteurs
-
-
-
 ############################ Partie 2 #############################
 
 ## Question 2.1 :
@@ -222,15 +211,3 @@ for doc in corpus_sans_doublons:
 aujourdhui = datetime.datetime.now()
 #print(aujourdhui)
 
-
-#####
-# Td4
-#####
-
-
-# collection = []
-# print(df.head)
-
-# Reddit
-
-# Arxiv

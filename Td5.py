@@ -115,17 +115,6 @@ print(id2doc)
 
 
 
-
-# =============== 2.6 : DICT AUTEURS ===============
-import Author
-authors = {}
-aut2id = {}
-num_auteurs_vus = 0
-
-# Création de la liste+index des Auteurs
-
-
-
 ############################ Partie 2 #############################
 
 ## Question 2.1 :
@@ -201,3 +190,4 @@ print(df)
 # Mettre une date et une heure au moment de l'execution du code
 aujourdhui = datetime.datetime.now()
 #print(aujourdhui)
+

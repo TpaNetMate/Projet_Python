@@ -44,6 +44,6 @@ class Corpus:
         res=p.finditer(self)
         for r in res:
             (i,j)=r.span()
-            print("trouvé en position {a}:{b}".format(a=i, b=self[i:j]))
-    
-    
+            
+        print("trouvé en position {a}:{b}".format(a=i, b=self[i:j]))
+   

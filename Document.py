@@ -1,5 +1,6 @@
 ############################ Partie 1 #############################
 ## Question 1.1 et 1.2:
+import re
 class Document:
     def __init__(self, titre, auteur, date, url, texte):
         self.titre = titre
@@ -13,6 +14,32 @@ class Document:
 
     def __str__(self):
         return f"Titre : {self.titre}"
+    def search(self,mot ):
+        # Utiliser une expression régulière pour trouver le mot dans le texte
+        pattern = re.compile(r'\b' + re.escape(mot) + r'\b', re.IGNORECASE)
+        matches = re.finditer(pattern, self.texte)
+        taille_contexte=10
+        resultats = []
+
+        # Parcourir les occurrences et récupérer les indices de début et de fin
+        for match in matches:
+            debut = match.start()
+            fin = match.end()
+
+            # Ajouter les informations à la liste des résultats
+            contexte_gauche = self.texte[max(0, debut - taille_contexte):debut]
+            contexte_droite = self.texte[fin:min(fin + taille_contexte, len(self.texte))]
+
+            resultats.append({
+                'mot_cible': mot,
+                'debut': debut,
+                'fin': fin,
+                'occurrence': self.texte[debut:fin],
+                'contexte_gauche': contexte_gauche,
+                'contexte_droite': contexte_droite
+            })
+
+        return resultats
 
 class RedditDocument(Document):
     def __init__(self, titre="", auteur="", date="", url="", texte="",commentaire=""):

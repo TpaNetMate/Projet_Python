@@ -111,7 +111,10 @@ for i, doc in enumerate(collection):
         aut2id[doc.auteur] = num_auteurs_vus
 
     authors[aut2id[doc.auteur]].add(doc.texte)
-print(id2doc)
+# print(id2doc)
+import re
+# print(collection)
+
 
 
 
@@ -135,18 +138,18 @@ num_auteurs_vus = 0
 
 from Corpus import Corpus
 nomCorpus='mon corpus'
-corpus = Corpus(nomCorpus)
+corpusClass = Corpus(nomCorpus)
 
 # Construction du corpus à partir des documents
 for doc in collection:
-    corpus.add(doc)
+    corpusClass.add(doc)
 
 source = ['Reddit'] * len(docs_reddit) + ['Arxiv'] * len(docs_arxiv)
-num_id = list(range(1, corpus.ndoc + 1))
+num_id = list(range(1, corpusClass.ndoc + 1))
 
 # Création du DataFrame
 data = {'ID': num_id,
-        'text': corpus,
+        'text': corpusClass,
         'Origine_Site': source}
 
 # Création du DataFrame à partir du dictionnaire 'data'
@@ -158,36 +161,53 @@ df = pd.DataFrame(data)
 df.to_csv('corpus.csv', sep='\t', index=False)
 ## Question 2.3 :
 df = pd.read_csv('corpus.csv',on_bad_lines='skip')
-print(df)
+# print(df)
 
+# print(corpus.show)
 
 ############################ Partie 3 #############################
 
-## Question 3.1 :
-# taill_corp = len(corpus)
-#print("Le nombre de documents du corpus est de " + str(taill_corp) + ".")
+# Question 3.1 :
+corpus=collection
+taill_corp = len(corpus)
+print("Le nombre de documents du corpus est de " + str(taill_corp) + ".")
 
-## Question 3.2 :
-# Affichage1 = True # Mettre True pour afficher le resultat de la fonction
-# if Affichage1:
-#     for i, doc in enumerate(corpus, start=1) :
-#         print("Document n°" + str(i))
-#         print("Nombre de mots :" + str(len(doc.split(" ")))) #Nombre de mots en comptant à chaque espace
-#         print("Nombre de phrases :" + str(len(doc.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
+# Question 3.2 :
+Affichage1 = True # Mettre True pour afficher le resultat de la fonction
+if Affichage1:
+    for i, doc in enumerate(corpus, start=1) :
+        print("Document n°" + str(i))
+        print("Nombre de mots :" + str(len(doc.texte.split(" ")))) #Nombre de mots en comptant à chaque espace
+        print("Nombre de phrases :" + str(len(doc.texte.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
     
-# ## Question 3.3 :
-# corp_filtre = [doc for doc in corpus if len(doc) >= 100]
+## Question 3.3 :
+corp_filtre = [doc for doc in corpus if len(doc.texte) >= 100]
 
-# Affichage2 = True # Mettre True pour afficher le resultat de la fonction
-# if Affichage2:
-#     for i, doc in enumerate(corp_filtre, start=1) :
-#         print("Document n°" + str(i))
-#         print("Nombre de mots :" + str(len(doc.split(" ")))) #Nombre de mots en comptant à chaque espace
-#         print("Nombre de phrases :" + str(len(doc.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
+Affichage2 = True # Mettre True pour afficher le resultat de la fonction
+if Affichage2:
+    for i, doc in enumerate(corp_filtre, start=1) :
+        print("Document n°" + str(i))
+        print("Nombre de mots :" + str(len(doc.texte.split(" ")))) #Nombre de mots en comptant à chaque espace
+        print("Nombre de phrases :" + str(len(doc.texte.split("."))) + "\n") #Nombre de phrases en comptant à chaque point
 
-## Question 3.4 :
-#Création d'une unique chaine de caractere contenant tous les docs
+# Question 3.4 :
+# Création d'une unique chaine de caractere contenant tous les docs
 # chaine_unique = " ".join(corp_filtre)
+
+#supprimer les doublons dans le corpus 
+textes_uniques=set()
+corpus_sans_doublons=[]
+for doc in corp_filtre:
+    if doc.titre not in textes_uniques:
+        textes_uniques.add(doc.titre)
+        corpus_sans_doublons.append(doc)
+
+#TD6 rechercher un mot dans le corpus
+target_word =input("Entrez le mot que vous souhaitez rechercher : ")
+for doc in corpus_sans_doublons:
+    res=doc.search(target_word)
+    if res :
+        print(res)
 
 #Autre facon de faire les question 2.1 et 2.2 avec pickle :
 ## Question 2.2

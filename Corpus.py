@@ -38,9 +38,9 @@ class Corpus:
 
         return "\n".join(list(map(str, docs)))
     
-    def search(mot, self):
-        p=re.compile("{mot}[a-z]*",re.IGNORECASE)
-        res=p.finditer(self)
-        for r in res:
-            (i,j)=r.span()
-            print("trouvé en position {a}:{b}".format(a=i, b=self[i:j]))
+    # def search(mot, self):
+    #     p=re.compile("{mot}[a-z]*",re.IGNORECASE)
+    #     res=p.finditer(self)
+    #     for r in res:
+    #         (i,j)=r.span()
+    #         print("trouvé en position {a}:{b}".format(a=i, b=self[i:j]))

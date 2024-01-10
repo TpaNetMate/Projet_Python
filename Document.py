@@ -24,7 +24,7 @@ class Document:
         for match in matches:
             debut = match.start()
             fin = match.end()
-
+            texte_doc=self.texte
             # Ajouter les informations à la liste des résultats
             contexte_gauche = self.texte[max(0, debut - taille_contexte):debut]
             contexte_droite = self.texte[fin:min(fin + taille_contexte, len(self.texte))]
@@ -35,7 +35,8 @@ class Document:
                 # 'fin': fin,
                 # 'occurrence': self.texte[debut:fin],
                 'contexte_gauche': contexte_gauche,
-                'contexte_droite': contexte_droite
+                'contexte_droite': contexte_droite,
+                'texte':texte_doc
             })
 
         return resultats

@@ -212,36 +212,44 @@ aujourdhui = datetime.datetime.now()
 ###Et TD7 avec l'interface de recherche
 
 import tkinter as tk
-from functools import partial
 from tkinter import ttk
 
 #initialisation des varibales pour faire un data frame qui comporte le résultat de la recherche avec contexte gauche et contexte droite
-contexte_gauche=[]
-contexte_droite=[]
-mots=[]
+textes=[]
 def on_search_button_click(query_var):
     query = query_var.get()
+    contexte_gauche=[]
+    contexte_droite=[]
+    mots=[]
+    
 #parcourir le corpus sans doublons pour trouver le mot
     for doc in corpus_sans_doublons:
         res=doc.search(query)
         if res :
             print(res)
+
             for i in res:
                 contexte_gauche.append(i['contexte_gauche'])
                 mots.append(i['mot_cible'])
                 contexte_droite.append(i['contexte_droite'])
+                textes.append(i['texte'])
 #creation du dictionnaire avec le mot trouvé et le contexte gauche et droit
     concorde={
         'contexte gauche':contexte_gauche,
         'mot cible': mots,
         'contexte_droite':contexte_droite
     }
-    print(type(concorde))
+    docu_mots={
+        "contenu":textes
+    }
+        # Création du DataFrame pour la suite du TD7 et la création de la matrice docummentsXMots'
+    df_contenu = pd.DataFrame(docu_mots)
     # Création du DataFrame à partir du dictionnaire 'concorde'
     df_concorde = pd.DataFrame(concorde)
     df_concorde.to_csv('concorde.csv', sep='\t', index=False)
     df_concorde = pd.read_csv('concorde.csv',on_bad_lines='skip')
-    print(df_concorde)
+
+
     result_df=df_concorde
     #creation de l'interface lorsque on clic sur 'recherche'
     result_window = tk.Toplevel(root)
@@ -306,3 +314,37 @@ for doc in corpus_sans_doublons:
 
 print(clean_corpus)
 
+####TD7####
+#Nous allons travailler sur les textes qui contiennent le mot recherché
+    # Création du DataFrame pour la suite du TD7 et la création de la matrice docummentsXMots'
+for text in textes:
+    textes["contenu_minus"]=texte.lower()
+    textes["nombre_mots"]=textes["contenu_minus"].apply(lambda x : len(x.split()))
+    textes["nombre_mot_clés"]=corpus.apply(lambda x: x["contenu_minus"].count(query_var), axis=1)
+    textes.head()
+
+
+import nltk
+nltk.download('punkt', quiet=True)
+# from nltk import punkt : autre façon d'importer les ressources nécessaires
+
+texte0 = textes.loc[0,"contenu_minus"]
+tokens = nltk.word_tokenize(texte0) #tokens = texte0.split()
+print(tokens[0:30])
+
+re_punc = re.compile('[%s]' % re.escape(string.punctuation))
+tokens = [re_punc.sub('', w) for w in tokens]
+#tokens=[word.lower() for word in tokens]
+tokens = [word for word in tokens if word.isalpha()]
+stop_words = set(stopwords.words('french'))
+tokens = [word for word in tokens if not word in stop_words]
+tokens = [word for word in tokens if len(word) > 1]
+        
+print(tokens[0:15])
+from nltk.stem.snowball import SnowballStemmer
+
+stemmer = SnowballStemmer(language='french')
+tokens_stemmed = [stemmer.stem(word) for word in tokens]
+
+print(tokens_stemmed[0:15])
+pd.Series(tokens_stemmed).value_counts()[0:10]

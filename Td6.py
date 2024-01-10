@@ -191,12 +191,6 @@ for doc in corp_filtre:
         textes_uniques.add(doc.titre)
         corpus_sans_doublons.append(doc)
 
-#TD6 rechercher un mot dans le corpus
-target_word =input("Entrez le mot que vous souhaitez rechercher : ")
-for doc in corpus_sans_doublons:
-    res=doc.search(target_word)
-    if res :
-        print(res)
 
 #Autre facon de faire les question 2.1 et 2.2 avec pickle :
 ## Question 2.2
@@ -210,4 +204,105 @@ for doc in corpus_sans_doublons:
 # Mettre une date et une heure au moment de l'execution du code
 aujourdhui = datetime.datetime.now()
 #print(aujourdhui)
+
+#######TD6 Partie 2####
+
+#TD6 rechercher un mot dans le corpus
+
+###Et TD7 avec l'interface de recherche
+
+import tkinter as tk
+from functools import partial
+from tkinter import ttk
+
+#initialisation des varibales pour faire un data frame qui comporte le résultat de la recherche avec contexte gauche et contexte droite
+contexte_gauche=[]
+contexte_droite=[]
+mots=[]
+def on_search_button_click(query_var):
+    query = query_var.get()
+#parcourir le corpus sans doublons pour trouver le mot
+    for doc in corpus_sans_doublons:
+        res=doc.search(query)
+        if res :
+            print(res)
+            for i in res:
+                contexte_gauche.append(i['contexte_gauche'])
+                mots.append(i['mot_cible'])
+                contexte_droite.append(i['contexte_droite'])
+#creation du dictionnaire avec le mot trouvé et le contexte gauche et droit
+    concorde={
+        'contexte gauche':contexte_gauche,
+        'mot cible': mots,
+        'contexte_droite':contexte_droite
+    }
+    print(type(concorde))
+    # Création du DataFrame à partir du dictionnaire 'concorde'
+    df_concorde = pd.DataFrame(concorde)
+    df_concorde.to_csv('concorde.csv', sep='\t', index=False)
+    df_concorde = pd.read_csv('concorde.csv',on_bad_lines='skip')
+    print(df_concorde)
+    result_df=df_concorde
+    #creation de l'interface lorsque on clic sur 'recherche'
+    result_window = tk.Toplevel(root)
+    result_window.title("Résultats de la Recherche")
+
+    # Création d'un tableau Pandas dans la nouvelle fenêtre
+    treeview = ttk.Treeview(result_window, columns=list(result_df.columns), show="headings")
+    for col in result_df.columns:
+        treeview.heading(col, text=col)
+    for i, row in result_df.iterrows():
+        treeview.insert("", "end", values=list(row))
+
+    treeview.pack(padx=10, pady=10, fill="both", expand=True)
+
+# Création de la fenêtre principale
+root = tk.Tk()
+root.title("Navigateur de Recherche")
+# Définir la taille initiale de la fenêtre sur 600x400 pixels
+root.geometry('600x400')
+# Création de la variable de texte pour le champ de saisie
+query_var = tk.StringVar()
+
+# Création des widgets de la page d'accueil
+ttk.Label(root, text="Navigateur de Recherche").pack(pady=10)
+entry = ttk.Entry(root, textvariable=query_var, width=10)
+entry.pack(pady=10)
+search_button = ttk.Button(root, text="Rechercher", command=lambda: on_search_button_click(query_var))
+search_button.pack(pady=10)
+# Ajoutez d'autres widgets selon vos besoins
+
+root.mainloop()
+
+### TD6 nettoyage #####
+import string
+from nltk.corpus import stopwords
+import nltk
+nltk.download('stopwords')
+from nltk.stem.snowball import SnowballStemmer
+# turn a doc into clean tokens
+def clean_doc(doc):
+        # split into tokens by white space
+        tokens = doc.split() #tokens=word_tokenize(doc)
+        #Best way to strip punctuation from a string: prepare regex for char filtering by using regular expressions to search for and to remove punctuation 
+        re_punc = re.compile('[%s]' % re.escape(string.punctuation))
+        # remove punctuation from each word
+        tokens = [re_punc.sub('', w) for w in tokens]
+        # remove remaining tokens that are not alphabetic
+        tokens = [word for word in tokens if word.isalpha()]
+        # filter out stop words
+        stop_words = set(stopwords.words('english'))
+        tokens = [w for w in tokens if not w in stop_words]
+        # filter out short tokens
+        tokens = [word for word in tokens if len(word) > 1]
+        # apply stemming using snowball
+        stemmed = [SnowballStemmer('english').stem(word) for word in tokens]
+        # gather each token to form a sentence
+        cleaned_doc = ' '.join(word for word in stemmed)
+        return cleaned_doc
+clean_corpus=[]
+for doc in corpus_sans_doublons:
+    clean_corpus.append(clean_doc(doc.texte))
+
+print(clean_corpus)
 

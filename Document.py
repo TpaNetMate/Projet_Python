@@ -20,7 +20,6 @@ class Document:
         matches = re.finditer(pattern, self.texte)
         taille_contexte=10
         resultats = []
-
         # Parcourir les occurrences et récupérer les indices de début et de fin
         for match in matches:
             debut = match.start()
@@ -32,9 +31,9 @@ class Document:
 
             resultats.append({
                 'mot_cible': mot,
-                'debut': debut,
-                'fin': fin,
-                'occurrence': self.texte[debut:fin],
+                # 'debut': debut,
+                # 'fin': fin,
+                # 'occurrence': self.texte[debut:fin],
                 'contexte_gauche': contexte_gauche,
                 'contexte_droite': contexte_droite
             })
